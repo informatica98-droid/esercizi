@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Microsoft Word - 30 Domande</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans pb-12">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-md py-4 px-6 sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-wide">Quiz su Microsoft Word</h1>
+            <span id="progress-header" class="text-sm bg-indigo-700 px-3 py-1 rounded-full font-medium">30 Domande</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 mt-6">
+        
+        <form id="quiz-form" onsubmit="calculateScore(event)" class="space-y-6">
+            
+            <div id="questions-container" class="space-y-6">
+                <!-- Domande generate dinamicamente da JS -->
+            </div>
+
+            <!-- Pulsante Invia -->
+            <div class="pt-6 text-center">
+                <button type="submit" class="w-full sm:w-auto px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition text-lg">
+                    Concludi e Calcola Punteggio
+                </button>
+            </div>
+
+        </form>
+
+    </main>
+
+    <!-- Modal per Finestra Punteggio Finale -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl transform transition-all">
+            <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                🏆
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Quiz Completato!</h2>
+            <p class="text-slate-600 mb-4">Ecco il risultato del tuo test su Microsoft Word:</p>
+            
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
+                <div id="modal-score" class="text-4xl font-extrabold text-indigo-600 mb-1">0 / 30</div>
+                <div id="modal-percentage" class="text-sm font-semibold text-slate-500">Percentuale: 0%</div>
+            </div>
+
+            <p id="modal-feedback" class="text-sm text-slate-600 mb-6"></p>
+
+            <button onclick="closeModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition">
+                Riprova il Quiz
+            </button>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        const questions = [
+            {
+                q: "1. Quale scheda della barra multifunzione occorre abilitare per inserire moduli compilabili?",
+                options: ["Sviluppo", "Inserisci", "Progettazione"],
+                correct: 0
+            },
+            {
+                q: "2. Come si chiama la barra multifunzione contenente schede e gruppi di comandi?",
+                options: ["Backstage", "Ribbon", "Layout"],
+                correct: 1
+            },
+            {
+                q: "3. Quale strumento permette di navigare la struttura del documento per intestazioni o pagine?",
+                options: ["Riquadro di spostamento", "Stampa Unione", "Copilot"],
+                correct: 0
+            },
+            {
+                q: "4. Cos'è la funzione 'Stampa Unione'?",
+                options: ["Un comando per stampare due pagine sullo stesso foglio", "Funzione per generare documenti personalizzati in massa da un elenco di destinatari", "Un'opzione per unire due file Word diversi"],
+                correct: 1
+            },
+            {
+                q: "5. Come si chiama l'area File utilizzata per apertura, salvataggio, esportazione e opzioni?",
+                options: ["Ribbon", "Backstage", "Layout Web"],
+                correct: 1
+            },
+            {
+                q: "6. Che cosa indica una linea ondulata rossa sotto una parola in Word?",
+                options: ["Un errore di grammatica", "Un errore di ortografia o una parola non presente nel dizionario", "Una parola con uno stile errato"],
+                correct: 1
+            },
+            {
+                q: "7. Quale modalità di visualizzazione presenta il documento senza margini per la pubblicazione su Internet?",
+                options: ["Layout di stampa", "Layout Web", "Struttura"],
+                correct: 1
+            },
+            {
+                q: "8. Come vengono visualizzati i caratteri non stampabili relativi agli spazi bianchi?",
+                options: ["Con un puntino in alto", "Con una freccia verso destra", "Con il simbolo di paragrafo (¶)"],
+                correct: 0
+            },
+            {
+                q: "9. Che cos'è Copilot in Microsoft 365?",
+                options: ["Un modello di documento predefinito", "Un assistente AI integrato per redazione, riassunto e riformulazione", "Un controllo contenuto per caselle di testo"],
+                correct: 1
+            },
+            {
+                q: "10. Quale elemento permette di applicare con un clic un set di formattazioni salvate?",
+                options: ["Sezioni", "Stili", "Modelli"],
+                correct: 1
+            },
+            {
+                q: "11. Cosa sono le 'Sezioni' in Word?",
+                options: ["Porzioni di documento con impostazioni indipendenti (es. margini, numerazione)", "Elenchi puntati dinamici", "Finestre di dialogo per l'ortografia"],
+                correct: 0
+            },
+            {
+                q: "12. Dove è possibile conoscere o modificare il 'Nome utente' impostato in Word?",
+                options: ["Nella scheda Layout", "Nella finestra Opzioni di Word", "Nel Riquadro di spostamento"],
+                correct: 1
+            },
+            {
+                q: "13. Quale strumento viene utilizzato per ritornare rapidamente a una pagina specifica del documento?",
+                options: ["Lo strumento 'Vai'", "Il controllo ortografia", "La Stampa Unione"],
+                correct: 0
+            },
+            {
+                q: "14. Come si chiama l'elenco generato automaticamente dalle intestazioni del documento?",
+                options: ["Sommario", "Indice analitico", "Glossario"],
+                correct: 0
+            },
+            {
+                q: "15. Che tipo di errore segnala Word con una doppia sottolineatura blu?",
+                options: ["Errore di ortografia", "Errore di grammatica", "Errore di formattazione dello stile"],
+                correct: 1
+            },
+            {
+                q: "16. Quale operazione permette di nascondere temporaneamente le schede della barra multifunzione?",
+                options: ["Minimizzare la barra multifunzione", "Passare a Layout Web", "Chiudere la finestra Opzioni"],
+                correct: 0
+            },
+            {
+                q: "17. Qual è il modello predefinito quando si crea un documento da zero?",
+                options: ["Documento standard", "Documento vuoto", "Modello aziendale"],
+                correct: 1
+            },
+            {
+                q: "18. Quale opzione consente di visualizzare la cronologia delle modifiche di un file salvato su OneDrive?",
+                options: ["Copilot", "Versioni", "Backstage Info"],
+                correct: 1
+            },
+            {
+                q: "19. Quali elementi si possono inserire in un modulo compilabile dalla scheda Sviluppo?",
+                options: ["Controlli contenuto (caselle di testo, elenchi a discesa, date)", "Solo immagini e grafici", "Solo tabelle e sezioni"],
+                correct: 0
+            },
+            {
+                q: "20. Come si può modificare l'ingrandimento della schermata di lavoro?",
+                options: ["Spostando i margini della pagina", "Usando gli strumenti di Zoom (es. 200%)", "Cambiando l'orientamento del foglio"],
+                correct: 1
+            },
+            {
+                q: "21. Cosa occorre inserire per forzare l'inizio del testo su una nuova pagina?",
+                options: ["Un'interruzione di pagina", "Un'interruzione di sezione continua", "Un rientro di paragrafo"],
+                correct: 0
+            },
+            {
+                q: "22. Quale scheda contiene i comandi per inserire forme, immagini e tabelle?",
+                options: ["Home", "Inserisci", "Layout"],
+                correct: 1
+            },
+            {
+                q: "23. Per proteggere un modulo compilabile affinché gli utenti inseriscano solo i dati richiesti, occorre scegliere:",
+                options: ["Proteggi per sola compilazione", "Proteggi con password di avvio Word", "Salva in formato PDF"],
+                correct: 0
+            },
+            {
+                q: "24. In una tabella di Word, è possibile applicare un colore alle celle usando:",
+                options: ["Colore di sfondo / Sfondatura", "Evidenziatore di testo", "Stile carattere"],
+                correct: 0
+            },
+            {
+                q: "25. Quale comando si usa per trasformare un elenco di paragrafi in un elenco puntato?",
+                options: ["Elenco puntato (scheda Home)", "Converti testo in tabella", "Stili di intestazione"],
+                correct: 0
+            },
+            {
+                q: "26. Quale scorciatoia o comando permette di chiudere un singolo documento senza uscire da Word?",
+                options: ["Chiudi documento dal menu File / Backstage", "Alt + F4", "Minimizza finestra"],
+                correct: 0
+            },
+            {
+                q: "27. Se una parola non è contenuta nel dizionario di Word ma è corretta, come la segnala il programma?",
+                options: ["Come errore ortografico (sottolineatura ondulata rossa)", "Non la segnala in alcun modo", "Scompare dal testo"],
+                correct: 0
+            },
+            {
+                q: "28. Quale bordo è possibile applicare a una tabella per evidenziare sia i contorni che le griglie interne?",
+                options: ["Bordo 'Griglia'", "Solo bordo esterno", "Nessun bordo"],
+                correct: 0
+            },
+            {
+                q: "29. Dove si possono regolare i margini e l'orientamento della pagina?",
+                options: ["Nella scheda Layout", "Nella scheda Visualizza", "Nella scheda Revisione"],
+                correct: 0
+            },
+            {
+                q: "30. A cosa servono i 'Controlli contenuto'?",
+                options: ["A strutturare moduli interattivi per la raccolta dati", "A verificare la grammatica automaticamente", "A unire più documenti Word insieme"],
+                correct: 0
+            }
+        ];
+
+        // Render delle domande
+        function renderQuiz() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const qCard = document.createElement('div');
+                qCard.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6';
+
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    optionsHTML += `
+                        <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-indigo-300 hover:bg-slate-50 transition cursor-pointer">
+                            <input type="radio" name="question-${index}" value="${optIndex}" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" required>
+                            <span class="text-slate-700 font-medium text-sm sm:text-base">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                qCard.innerHTML = `
+                    <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-4">${q.q}</h3>
+                    <div class="space-y-2">
+                        ${optionsHTML}
+                    </div>
+                `;
+
+                container.appendChild(qCard);
+            });
+        }
+
+        // Calcolo del punteggio
+        function calculateScore(event) {
+            event.preventDefault();
+
+            let score = 0;
+            questions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+                if (selected && parseInt(selected.value) === q.correct) {
+                    score++;
+                }
+            });
+
+            const percentage = Math.round((score / questions.length) * 100);
+
+            // Aggiorna Modale
+            document.getElementById('modal-score').textContent = `${score} / ${questions.length}`;
+            document.getElementById('modal-percentage').textContent = `Percentuale: ${percentage}%`;
+
+            let feedbackText = "";
+            if (percentage >= 90) {
+                feedbackText = "Eccellente! Conosci Microsoft Word nei minimi dettagli.";
+            } else if (percentage >= 70) {
+                feedbackText = "Buon lavoro! Hai una solida conoscenza di Word.";
+            } else if (percentage >= 50) {
+                feedbackText = "Sufficiente. Puoi ripassare le funzioni meno utilizzate.";
+            } else {
+                feedbackText = "Ti consigliamo di consultare nuovamente il manuale per migliorare le tue competenze.";
+            }
+
+            document.getElementById('modal-feedback').textContent = feedbackText;
+
+            // Mostra Modale
+            document.getElementById('result-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('quiz-form').reset();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Inizializza Quiz
+        renderQuiz();
+    </script>
+</body>
+</html>
+
